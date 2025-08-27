@@ -21,6 +21,11 @@ class CMSLoginView(LoginView):
 
 class CMSLogoutView(LogoutView):
     next_page = "cms:login"
+    http_method_names = ['get', 'post']  # Allow both GET and POST
+    
+    def get(self, request, *args, **kwargs):
+        # For GET requests, log out the user directly
+        return self.post(request, *args, **kwargs)
 
 
 class EntryListView(LoginRequiredMixin, OPAPermissionMixin, ListView):
