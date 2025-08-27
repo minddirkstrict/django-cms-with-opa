@@ -123,6 +123,23 @@ class EntryPublishView(LoginRequiredMixin, OPAEntryPermissionMixin, View):
 
         return HttpResponseRedirect(reverse_lazy("cms:entry_list"))
 
+class EntryUnpublishView(LoginRequiredMixin, OPAEntryPermissionMixin, View):
+    login_url = "cms:login"
+    required_permission = "unpublish"
+    resource_type = "entry"
+
+    def get_object(self):
+        """Get the entry object for permission checking"""
+        pk = self.kwargs.get("pk")
+        return get_object_or_404(Entry, pk=pk)
+
+    def post(self, request, pk):
+        entry = get_object_or_404(Entry, pk=pk)
+        entry.unpublish()
+
+        messages.success(request, "Entry unpublished successfully!")
+
+        return HttpResponseRedirect(reverse_lazy("cms:entry_list"))
 
 class PublishedEntriesListView(OPAPermissionMixin, ListView):
     model = PublishedEntries

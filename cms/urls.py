@@ -19,6 +19,11 @@ urlpatterns = [
         views.EntryPublishView.as_view(),
         name="entry_publish",
     ),
+    path(
+        "unpublish/<int:pk>/",
+        views.EntryUnpublishView.as_view(),
+        name="entry_unpublish",
+    ),
 ]
 
 # Public URLs (outside the cms app namespace)

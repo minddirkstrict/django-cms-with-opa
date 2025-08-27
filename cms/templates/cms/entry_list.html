@@ -77,6 +77,10 @@
             background: #28a745;
             color: white;
         }
+        .btn-unpublish {
+            background: #28a745;
+            color: white;
+        }
         .btn-publish:hover {
             background: #218838;
         }
@@ -151,6 +155,13 @@
                                         onclick="return confirm('Publish this entry? It will be publicly visible.')">Publish</button>
                             {% endif %}
                         </form>
+                        {% if entry.is_published %}
+                        <form method="post" action="{% url 'cms:entry_unpublish' entry.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-small btn-unpublish" 
+                                    onclick="return confirm('Unpublish this entry? It will no longer be publicly visible.')">Unpublish</button>
+                        </form>
+                        {% endif %}
                         <a href="{% url 'cms:entry_delete' entry.pk %}" class="btn-small btn-delete" 
                            onclick="return confirm('Are you sure you want to delete this entry?')">Delete</a>
                     </div>

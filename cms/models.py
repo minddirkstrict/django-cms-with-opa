@@ -33,6 +33,13 @@ class Entry(models.Model):
             },
         )
 
+    def unpublish(self):
+        PublishedEntries.objects.filter(
+            original_entry=self,
+        ).delete()
+        self.published_at = None
+        self.save()
+
     class Meta:
         verbose_name_plural = "entries"
 
