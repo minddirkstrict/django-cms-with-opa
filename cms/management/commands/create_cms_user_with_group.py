@@ -78,7 +78,9 @@ class Command(BaseCommand):
                 self._display_group_permissions(group_name)
             else:
                 self.stdout.write(
-                    self.style.WARNING(f'User "{username}" has default permissions (own entries only)')
+                    self.style.WARNING(
+                        f'User "{username}" has default permissions (read-only - can only list entries)'
+                    )
                 )
             
             self.stdout.write(

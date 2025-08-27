@@ -30,8 +30,16 @@ allow if {
     input.resource == "entries"
 }
 
+# Allow viewers to view individual entries
+allow if {
+    input.user.is_authenticated
+    has_group(input.user, "viewer")
+    input.action == "view"
+    input.resource == "entry"
+}
+
 # ============= EDITOR GROUP PERMISSIONS =============
-# Editors can view all entries and edit them
+# Editors can view all entries, create, edit, and delete them (but NOT publish)
 
 # Allow editors to list entries
 allow if {
@@ -39,6 +47,14 @@ allow if {
     has_group(input.user, "editor")
     input.action == "list"
     input.resource == "entries"
+}
+
+# Allow editors to view individual entries
+allow if {
+    input.user.is_authenticated
+    has_group(input.user, "editor")
+    input.action == "view"
+    input.resource == "entry"
 }
 
 # Allow editors to create entries
@@ -66,7 +82,7 @@ allow if {
 }
 
 # ============= PUBLISHER GROUP PERMISSIONS =============
-# Publishers can publish and unpublish entries (includes all editor permissions)
+# Publishers can ONLY publish/unpublish entries (inherit all editor permissions)
 
 # Allow publishers to list entries
 allow if {
@@ -76,80 +92,20 @@ allow if {
     input.resource == "entries"
 }
 
-# Allow publishers to create entries
+# Allow publishers to view individual entries
 allow if {
     input.user.is_authenticated
     has_group(input.user, "publisher")
-    input.action == "create"
+    input.action == "view"
     input.resource == "entry"
 }
 
-# Allow publishers to edit any entry
-allow if {
-    input.user.is_authenticated
-    has_group(input.user, "publisher")
-    input.action == "edit"
-    input.resource == "entry"
-}
-
-# Allow publishers to delete any entry
-allow if {
-    input.user.is_authenticated
-    has_group(input.user, "publisher")
-    input.action == "delete"
-    input.resource == "entry"
-}
-
-# Allow publishers to publish/unpublish any entry
+# ONLY publishers can publish/unpublish any entry
 allow if {
     input.user.is_authenticated
     has_group(input.user, "publisher")
     input.action == "publish"
     input.resource == "entry"
-}
-
-# ============= BASIC USER PERMISSIONS =============
-# Authenticated users without specific groups can manage their own entries
-
-# Allow authenticated users to list entries
-allow if {
-    input.user.is_authenticated
-    input.action == "list"
-    input.resource == "entries"
-}
-
-# Allow authenticated users to create entries
-allow if {
-    input.user.is_authenticated
-    input.action == "create"
-    input.resource == "entry"
-}
-
-# Allow users to edit their own entries (if not in viewer group)
-allow if {
-    input.user.is_authenticated
-    not has_group(input.user, "viewer")
-    input.action == "edit"
-    input.resource == "entry"
-    is_owner(input.user, input.resource_data)
-}
-
-# Allow users to delete their own entries (if not in viewer group)
-allow if {
-    input.user.is_authenticated
-    not has_group(input.user, "viewer")
-    input.action == "delete"
-    input.resource == "entry"
-    is_owner(input.user, input.resource_data)
-}
-
-# Allow users to publish their own entries (if not in viewer group)
-allow if {
-    input.user.is_authenticated
-    not has_group(input.user, "viewer")
-    input.action == "publish"
-    input.resource == "entry"
-    is_owner(input.user, input.resource_data)
 }
 
 # ============= PUBLIC ACCESS =============
@@ -190,18 +146,9 @@ user_permissions := ["view_all", "list", "create", "edit_all", "delete_all"] if 
 }
 
 # Publisher permissions (includes all editor permissions)
-user_permissions := ["view_all", "list", "create", "edit_all", "delete_all", "publish_all"] if {
+user_permissions := ["view_all", "list", "publish_all"] if {
     input.user.is_authenticated
     has_group(input.user, "publisher")
-}
-
-# Basic authenticated user permissions (own entries only)
-user_permissions := ["list", "create", "edit_own", "delete_own", "publish_own"] if {
-    input.user.is_authenticated
-    not has_group(input.user, "viewer")
-    not has_group(input.user, "editor") 
-    not has_group(input.user, "publisher")
-    not input.user.is_staff
 }
 
 # Staff permissions (everything)

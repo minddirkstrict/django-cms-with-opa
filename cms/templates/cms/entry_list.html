@@ -138,7 +138,7 @@
     {% if entries %}
         {% for entry in entries %}
                         <div class="entry-card">
-                {% if user.is_authenticated and entry.owner == user %}
+                {% if user.is_authenticated %}
                     <div class="entry-actions">
                         <a href="{% url 'cms:entry_edit' entry.pk %}" class="btn-small btn-edit">Edit</a>
                         <form method="post" action="{% url 'cms:entry_publish' entry.pk %}" style="display: inline;">
