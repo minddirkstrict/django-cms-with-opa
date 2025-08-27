@@ -87,14 +87,29 @@ class OPAClient:
                 "username": "anonymous",
                 "is_authenticated": False,
                 "is_staff": False,
+                "groups": [],
             }
         
         return {
             "id": user.id if user.is_authenticated else None,
-            "username": user.username if user.is_authenticated else "anonymous",
+            "username": user.username
+            if user.is_authenticated
+            else "anonymous",
             "is_authenticated": user.is_authenticated,
             "is_staff": user.is_staff if user.is_authenticated else False,
+            "groups": self._get_user_groups(user)
+            if user.is_authenticated
+            else [],
         }
+
+    def _get_user_groups(self, user) -> list:
+        """Get user Django groups"""
+        try:
+            if hasattr(user, "groups") and user.groups.exists():
+                return [group.name.lower() for group in user.groups.all()]
+        except Exception as e:
+            logger.debug(f"Could not get user groups: {e}")
+        return []
 
 # Global OPA client instance
 opa_client = OPAClient()
