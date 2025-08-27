@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entries - CMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007cba;
+            padding-bottom: 15px;
+        }
+        .btn {
+            background: #007cba;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: #005a87;
+        }
+        .entry-card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+            transition: box-shadow 0.2s;
+            position: relative;
+        }
+        .entry-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: #007cba;
+        }
+        .entry-clickable {
+            cursor: pointer;
+        }
+        .entry-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+        }
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+            text-decoration: none;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-edit {
+            background: #007cba;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #005a87;
+        }
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-publish {
+            background: #28a745;
+            color: white;
+        }
+        .btn-publish:hover {
+            background: #218838;
+        }
+        .btn-published {
+            background: #6c757d;
+            color: white;
+            cursor: not-allowed;
+        }
+        .entry-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .entry-content {
+            color: #333;
+            line-height: 1.6;
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        .entry-content.truncated::after {
+            content: "...";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #f9f9f9;
+            padding-left: 10px;
+        }
+        .no-entries {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 50px 0;
+        }
+        .user-info {
+            background: #e7f3ff;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CMS Entries</h1>
+        <div>
+            <a href="/published/" class="btn" style="margin-right: 10px;">View Published</a>
+            <a href="{% url 'cms:entry_create' %}" class="btn">Create New Entry</a>
+        </div>
+    </div>
+    
+    {% if user.is_authenticated %}
+        <div class="user-info">
+            <strong>Welcome:</strong> {{ user.username }}
+            <a href="{% url 'cms:logout' %}" style="float: right; color: #007cba; text-decoration: none;">Logout</a>
+        </div>
+    {% endif %}
+    
+    {% if entries %}
+        {% for entry in entries %}
+                        <div class="entry-card">
+                {% if user.is_authenticated and entry.owner == user %}
+                    <div class="entry-actions">
+                        <a href="{% url 'cms:entry_edit' entry.pk %}" class="btn-small btn-edit">Edit</a>
+                        <form method="post" action="{% url 'cms:entry_publish' entry.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            {% if entry.is_published %}
+                                <button type="submit" class="btn-small btn-publish" 
+                                        onclick="return confirm('Republish this entry? This will update the public version.')">Republish</button>
+                            {% else %}
+                                <button type="submit" class="btn-small btn-publish" 
+                                        onclick="return confirm('Publish this entry? It will be publicly visible.')">Publish</button>
+                            {% endif %}
+                        </form>
+                        <a href="{% url 'cms:entry_delete' entry.pk %}" class="btn-small btn-delete" 
+                           onclick="return confirm('Are you sure you want to delete this entry?')">Delete</a>
+                    </div>
+                {% endif %}
+                <div class="entry-clickable" onclick="location.href='{% url 'cms:entry_edit' entry.pk %}'">
+                    <div class="entry-meta">
+                        <strong>By:</strong> {{ entry.owner.username }} | 
+                        <strong>Created:</strong> {{ entry.created_at|date:"M d, Y H:i" }} | 
+                        <strong>Updated:</strong> {{ entry.updated_at|date:"M d, Y H:i" }}
+                        {% if entry.is_published %}
+                            | <strong style="color: #28a745;">Published:</strong> {{ entry.published_at|date:"M d, Y H:i" }}
+                        {% else %}
+                            | <strong style="color: #ffc107;">Status:</strong> Draft
+                        {% endif %}
+                    </div>
+                    <div class="entry-content {% if entry.contents|length > 200 %}truncated{% endif %}">
+                        {{ entry.contents|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-entries">
+            <h3>No entries yet</h3>
+            <p>Be the first to create an entry!</p>
+            <a href="{% url 'cms:entry_create' %}" class="btn">Create Your First Entry</a>
+        </div>
+    {% endif %}
+</body>
+</html>

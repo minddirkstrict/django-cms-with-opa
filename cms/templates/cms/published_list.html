@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Published Entries</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #007cba, #005a87);
+            color: white;
+            border-radius: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .published-entry {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            padding: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .published-entry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .entry-meta {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .entry-author {
+            font-weight: bold;
+            color: #007cba;
+        }
+        .entry-content {
+            color: #333;
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
+        .no-entries {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin: 80px 0;
+            background: white;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+        .no-entries h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        .entry-count {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #007cba;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            z-index: 1000;
+        }
+        .back-link:hover {
+            background: #005a87;
+        }
+        @media (max-width: 768px) {
+            .entry-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .back-link {
+                position: static;
+                display: inline-block;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/cms/" class="back-link">← Back to CMS</a>
+    
+    <div class="header">
+        <h1>📰 Published Entries</h1>
+        <p>Public articles and stories from our community</p>
+    </div>
+    
+    {% if published_entries %}
+        <div class="entry-count">
+            Showing {{ published_entries|length }} published entr{{ published_entries|length|pluralize:"y,ies" }}
+        </div>
+        
+        {% for entry in published_entries %}
+            <article class="published-entry">
+                <div class="entry-meta">
+                    <div>
+                        <span class="entry-author">{{ entry.owner_username }}</span>
+                        <span> • Originally created {{ entry.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div>
+                        Published {{ entry.published_at|date:"M d, Y H:i" }}
+                    </div>
+                </div>
+                <div class="entry-content">
+                    {{ entry.contents|linebreaks }}
+                </div>
+            </article>
+        {% endfor %}
+    {% else %}
+        <div class="no-entries">
+            <h3>No published entries yet</h3>
+            <p>Be the first to publish your story! Create an entry in the CMS and hit the publish button.</p>
+        </div>
+    {% endif %}
+</body>
+</html>
