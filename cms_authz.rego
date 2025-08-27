@@ -108,6 +108,13 @@ allow if {
     input.resource == "entry"
 }
 
+allow if {
+    input.user.is_authenticated
+    has_group(input.user, "publisher")
+    input.action == "unpublish"
+    input.resource == "entry"
+}
+
 # ============= PUBLIC ACCESS =============
 # Allow everyone to view published entries
 allow if {
